@@ -1,3 +1,7 @@
+# Execute to run:
+#   pip install gunicorn
+#   gunicorn hello_falcon:app
+
 import falcon
 
 class HelloResource(object):
