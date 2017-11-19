@@ -16,3 +16,7 @@ You need to execute the following to install on Ubuntu 16.04:
     python api.py
     
 This uses Bjoern and MySQL connection pooling for high performance.
+
+### Improvements
+
+Do you have ideas for performance improvement? Open an [issue](https://github.com/mevdschee/py-crud-api/issues) or a [pull request](https://github.com/mevdschee/py-crud-api/pulls).
