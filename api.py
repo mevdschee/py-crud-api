@@ -1,5 +1,4 @@
-from wsgiref.simple_server import make_server
-from wsgiref.util import shift_path_info
+import bjoern, os
 import re
 import json
 import pymysql
@@ -7,22 +6,21 @@ import pymysql
 def app(environ, start_response):
     # get the HTTP method, path and body of the request
     method = environ['REQUEST_METHOD']
-    size = int('0'+environ.get('CONTENT_LENGTH'))
+    path = environ.get('PATH_INFO', '').split('/')
+    size = int(environ.get('CONTENT_LENGTH', '0'))
     if size > 0:
         data = json.loads(environ['wsgi.input'].read(size))
     else:
         data = {}
     # connect to the mysql database
-    link = pymysql.connect(host='localhost', user='php-crud-api', password='php-crud-api',
-                           db='php-crud-api', charset='utf8', autocommit=True)
+    link = pymysql.connect(host='localhost', user='php-crud-api',
+                           password='php-crud-api', db='php-crud-api',
+                           charset='utf8', autocommit=True)
     # retrieve the table and key from the path
-    table = re.sub(r'[^a-z0-9_]+', '', shift_path_info(environ), flags=re.IGNORECASE)
-    try:
-        key = int(shift_path_info(environ))
-    except (TypeError, ValueError):
-        key = 0
+    table = re.sub(r'[^a-zA-Z0-9_]+', '', path[1] if len(path) > 1 else '')
+    key = int(path[2] if len(path) > 2 else '0')
     # escape the columns and values from the input object
-    columns = list(re.sub(r'[^a-z0-9_]+', '', k, flags=re.IGNORECASE) for k in data.keys())
+    columns = list(re.sub(r'[^a-zA-Z0-9_]+', '', k) for k in data.keys())
     values = list(link.escape_string(str(v)) for v in data.values())
     # build the SET part of the SQL command
     sql = ''
@@ -63,4 +61,5 @@ def app(environ, start_response):
     # close mysql connection
     link.close()
 
-make_server('127.0.0.1', 8080, app).serve_forever()
+bjoern.listen(app, '127.0.0.1', 8080)
+bjoern.run()
