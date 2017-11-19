@@ -1,7 +1,7 @@
 import bjoern, os
 import re
 import json
-import pymysql
+import mysql.connector.pooling
 
 def app(environ, start_response):
     # get the HTTP method, path and body of the request
@@ -13,9 +13,10 @@ def app(environ, start_response):
     else:
         data = {}
     # connect to the mysql database
-    link = pymysql.connect(host='localhost', user='php-crud-api',
-                           password='php-crud-api', db='php-crud-api',
-                           charset='utf8', autocommit=True)
+    link = mysql.connector.connect(pool_size=32,
+                                   host='localhost', user='php-crud-api',
+                                   password='php-crud-api', db='php-crud-api',
+                                   charset='utf8', autocommit=True)
     # retrieve the table and key from the path
     table = re.sub(r'[^a-zA-Z0-9_]+', '', path[1] if len(path) > 1 else '')
     key = int(path[2] if len(path) > 2 else '0')
@@ -38,7 +39,7 @@ def app(environ, start_response):
     elif method == 'DELETE':
         sql = 'delete from `'+table+'` where id='+str(key)
     # execute SQL statement
-    cursor = link.cursor(pymysql.cursors.DictCursor)
+    cursor = link.cursor(dictionary=True)
     try:
         cursor.execute(sql)
         # print results, insert id or affected row count
@@ -46,15 +47,17 @@ def app(environ, start_response):
         if method == 'GET':
             if key == 0:
                 yield str('[')
-            for i in range(0, cursor.rowcount):
-                yield str((',' if i > 0 else '')+json.dumps(cursor.fetchone()))
+            i = 0
+            for row in cursor:
+                yield str((',' if i > 0 else '')+json.dumps(row))
+                i += 1
             if key == 0:
                 yield str(']')
         elif method == 'POST':
             yield str(cursor.lastrowid)
         else:
             yield str(cursor.rowcount)
-    except (pymysql.DatabaseError) as err:
+    except (mysql.connector.errors.DatabaseError) as err:
         # die if SQL statement failed
         start_response('404 Not Found', [('Content-Type', 'text/html')])
         yield str(err.args[1])
