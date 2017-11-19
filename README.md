@@ -17,6 +17,6 @@ You need to execute the following to install on Ubuntu 16.04:
     
 This uses Bjoern and MySQL connection pooling for high performance.
 
-### Improvements
+### Performance improvements
 
-Do you have ideas for performance improvement? Open an [issue](https://github.com/mevdschee/py-crud-api/issues) or a [pull request](https://github.com/mevdschee/py-crud-api/pulls).
+Do you have an idea for a performance improvement? Open an [issue](https://github.com/mevdschee/py-crud-api/issues) or a [pull request](https://github.com/mevdschee/py-crud-api/pulls).
