@@ -1,3 +1,6 @@
+# Run with (workers should match core count):
+#   gunicorn --workers=4 --worker-class="egg:meinheld#gunicorn_worker" api:app
+
 import bjoern, os
 import re
 import json
@@ -13,7 +16,7 @@ def app(environ, start_response):
     else:
         data = {}
     # connect to the mysql database
-    link = mysql.connector.connect(pool_size=32,
+    link = mysql.connector.connect(pool_size=10,
                                    host='localhost', user='php-crud-api',
                                    password='php-crud-api', db='php-crud-api',
                                    charset='utf8', autocommit=True)
@@ -64,5 +67,6 @@ def app(environ, start_response):
     # close mysql connection
     link.close()
 
-bjoern.listen(app, '127.0.0.1', 8080)
-bjoern.run()
+if __name__ == "__main__":
+    bjoern.listen(app, '127.0.0.1', 8000)
+    bjoern.run()
