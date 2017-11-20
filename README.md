@@ -24,8 +24,6 @@ To run multi core (using Gunicorn and Meinheld):
     
 NB: workers should match core count.
 
-This also uses MySQL connection pooling for high performance.
-
 ### Performance improvements
 
 Do you have an idea for a performance improvement? Open an [issue](https://github.com/mevdschee/py-crud-api/issues) or a [pull request](https://github.com/mevdschee/py-crud-api/pulls).
