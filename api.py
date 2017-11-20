@@ -3,6 +3,8 @@ import re
 import json
 import mysql.connector.pooling
 
+cleanRe = re.compile('[^a-zA-Z0-9_]+')
+
 def app(environ, start_response):
     # get the HTTP method, path and body of the request
     method = environ['REQUEST_METHOD']
@@ -18,10 +20,10 @@ def app(environ, start_response):
                                    password='php-crud-api', db='php-crud-api',
                                    charset='utf8', autocommit=True)
     # retrieve the table and key from the path
-    table = re.sub(r'[^a-zA-Z0-9_]+', '', path[1] if len(path) > 1 else '')
+    table = cleanRe.sub('', path[1] if len(path) > 1 else '')
     key = int(path[2] if len(path) > 2 else '0')
     # escape the columns and values from the input object
-    columns = list(re.sub(r'[^a-zA-Z0-9_]+', '', k) for k in data.keys())
+    columns = list(cleanRe.sub('', k) for k in data.keys())
     values = list(link.escape_string(str(v)) for v in data.values())
     # build the SET part of the SQL command
     sql = ''
