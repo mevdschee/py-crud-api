@@ -22,6 +22,8 @@ To run multi core (using Gunicorn and Meinheld):
 
     gunicorn --workers=4 --worker-class="egg:meinheld#gunicorn_worker" api:app
     
+NB: workers should match core count.
+
 This also uses MySQL connection pooling for high performance.
 
 ### Performance improvements
