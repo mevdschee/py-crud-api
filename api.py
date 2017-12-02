@@ -4,7 +4,13 @@
 import bjoern, os
 import re
 import json
-import mysql.connector.pooling
+import mysql.connector
+
+# connect to the mysql database
+link = mysql.connector.connect(host='localhost', user='php-crud-api',
+                               password='php-crud-api', db='php-crud-api',
+                               charset='utf8', autocommit=True)
+cursor = link.cursor(dictionary=True)
 
 def app(environ, start_response):
     # get the HTTP method, path and body of the request
@@ -15,11 +21,6 @@ def app(environ, start_response):
         data = json.loads(environ['wsgi.input'].read(size))
     else:
         data = {}
-    # connect to the mysql database
-    link = mysql.connector.connect(pool_size=10,
-                                   host='localhost', user='php-crud-api',
-                                   password='php-crud-api', db='php-crud-api',
-                                   charset='utf8', autocommit=True)
     # retrieve the table and key from the path
     table = re.sub(r'[^a-zA-Z0-9_]+', '', path[1] if len(path) > 1 else '')
     key = int(path[2] if len(path) > 2 else '0')
@@ -42,7 +43,6 @@ def app(environ, start_response):
     elif method == 'DELETE':
         sql = 'delete from `'+table+'` where id='+str(key)
     # execute SQL statement
-    cursor = link.cursor(dictionary=True)
     try:
         cursor.execute(sql)
         # print results, insert id or affected row count
@@ -64,8 +64,6 @@ def app(environ, start_response):
         # die if SQL statement failed
         start_response('404 Not Found', [('Content-Type', 'text/html')])
         yield str(err.args[1])
-    # close mysql connection
-    link.close()
 
 if __name__ == "__main__":
     bjoern.listen(app, '127.0.0.1', 8000)
